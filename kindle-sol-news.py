@@ -13,6 +13,7 @@ from sys import exit
 import smtplib
 import os
 import requests
+import re
 import subprocess
 from bs4 import BeautifulSoup
 
@@ -111,28 +112,17 @@ def send_email(mobi_file):
         exit()
     return smtpObj.quit()
 
-
-
-
 ###########################################################
 
-
-
-
-
 html_doc=requests.get('http://haber.sol.org.tr/anasayfa').text
-soup = BeautifulSoup(html_doc, 'html.parser')
-pages=[]
+regex = r"\<a href\=\"\/yazarlar\/([^\"]*)"
+pages = re.findall(regex, html_doc)
 
-mydivs = soup.findAll("div", { "class" : "currentcolumnlist-title" })
-for div in mydivs:
-    for link in div.find_all('a'):
-        pages.append('http://haber.sol.org.tr'+link.get('href'))
+for slink in pages:
+    log_file = open(directory+'/newslogs.txt', 'r')
+    old_news = log_file.readlines()
 
-log_file = open(directory+'/newslogs.txt', 'r')
-old_news = log_file.readlines()
-
-for link in pages:
+    link='http://haber.sol.org.tr/yazarlar/'+slink
     print (link)
 
     if link+'\n' in old_news:
